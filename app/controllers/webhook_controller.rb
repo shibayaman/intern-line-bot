@@ -66,4 +66,6 @@ class WebhookController < ApplicationController
     }
     head :ok
   end
+
+  private :client, :get_error_text_object
 end
