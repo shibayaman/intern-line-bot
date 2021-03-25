@@ -1,4 +1,7 @@
 require 'line/bot'
+require "net/http"
+require "json"
+require "uri"
 
 class WebhookController < ApplicationController
   protect_from_forgery except: [:callback] # CSRF対策無効化
@@ -25,11 +28,13 @@ class WebhookController < ApplicationController
         case event.type
         when Line::Bot::Event::MessageType::Text
           if event.message['text'] == '問題だして'
+            url = "https://api.chess.com/pub/puzzle"
+            res = Net::HTTP.get(URI.parse(url))
+            data = JSON.parse(res, symbolize_names: true)
             message = {
               type: 'image',
-              #　ランダムな猫の画像を返してくれるURL
-              originalContentUrl: 'https://placekitten.com/400/400',
-              previewImageUrl: 'https://placekitten.com/200/200'
+              originalContentUrl: data[:image],
+              previewImageUrl: data[:image]
             }
           else 
             message = {
