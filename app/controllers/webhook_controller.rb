@@ -35,7 +35,7 @@ class WebhookController < ApplicationController
               originalContentUrl: 'https://placekitten.com/400/400',
               previewImageUrl: 'https://placekitten.com/200/200'
             }
-          elsif 
+          else 
             message = {
               type: 'text',
               text: 'すみません。よくわかりません。'
