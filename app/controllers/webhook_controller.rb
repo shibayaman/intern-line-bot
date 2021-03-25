@@ -4,6 +4,8 @@ require "json"
 require "uri"
 
 class WebhookController < ApplicationController
+  CHESS_API_URL = 'https://api.chess.com/pub/puzzle'
+
   protect_from_forgery except: [:callback] # CSRF対策無効化
 
   def client
@@ -35,7 +37,7 @@ class WebhookController < ApplicationController
         case event.type
         when Line::Bot::Event::MessageType::Text
           if event.message['text'] == '問題だして'
-            url = URI.parse('https://api.chess.com/pub/puzzle')
+            url = URI.parse(CHESS_API_URL)
 
             begin
               res = Net::HTTP.get_response(url)
