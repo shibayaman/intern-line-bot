@@ -44,3 +44,7 @@ gem 'sinatra'
 gem 'bootsnap', require: false
 
 gem 'listen', group: :development
+
+group :development, :test do
+  gem 'dotenv-rails'
+end
