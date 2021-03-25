@@ -24,7 +24,7 @@ class WebhookController < ApplicationController
       when Line::Bot::Event::Message
         case event.type
         when Line::Bot::Event::MessageType::Text
-          if event.message['text'] == '問題だして' then
+          if event.message['text'] == '問題だして'
             message = {
               type: 'image',
               #　ランダムな猫の画像を返してくれるURL
