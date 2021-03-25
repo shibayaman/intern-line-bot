@@ -24,10 +24,19 @@ class WebhookController < ApplicationController
       when Line::Bot::Event::Message
         case event.type
         when Line::Bot::Event::MessageType::Text
-          message = {
-            type: 'text',
-            text: event.message['text']
-          }
+          if event.message['text'] == '問題だして' then
+            message = {
+              type: 'image',
+              #　ランダムな猫の画像を返してくれるURL
+              originalContentUrl: 'https://placekitten.com/400/400',
+              previewImageUrl: 'https://placekitten.com/200/200'
+            }
+          elsif 
+            message = {
+              type: 'text',
+              text: 'すみません。よくわかりません。'
+            }
+          end
           client.reply_message(event['replyToken'], message)
         when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
           response = client.get_message_content(event.message['id'])
