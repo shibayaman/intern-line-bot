@@ -10,6 +10,10 @@ class WebhookController < ApplicationController
     }
   end
 
+  def requesting_puzzle?(text)
+    text.match(/^(問題|もんだい)[出だ]して$/)
+  end
+
   def callback
     body = request.body.read
 
@@ -24,7 +28,7 @@ class WebhookController < ApplicationController
       when Line::Bot::Event::Message
         case event.type
         when Line::Bot::Event::MessageType::Text
-          if event.message['text'] == '問題だして' then
+          if requesting_puzzle? event.message['text'] then
             message = {
               type: 'image',
               #　ランダムな猫の画像を返してくれるURL
