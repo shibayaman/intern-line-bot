@@ -45,4 +45,6 @@ gem 'bootsnap', require: false
 
 gem 'listen', group: :development
 
-gem 'dotenv-rails', groups: [:development, :test]
+group :development, :test do
+  gem 'dotenv-rails'
+end
