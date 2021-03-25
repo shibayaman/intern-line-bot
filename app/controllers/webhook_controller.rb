@@ -13,6 +13,13 @@ class WebhookController < ApplicationController
     }
   end
 
+  def getErrorTextObject
+    return {
+      type: 'text',
+      text: '問題が発生しました。しばらくしてから試してください'
+    } 
+  end
+
   def callback
     body = request.body.read
 
@@ -28,14 +35,25 @@ class WebhookController < ApplicationController
         case event.type
         when Line::Bot::Event::MessageType::Text
           if event.message['text'] == '問題だして'
-            url = "https://api.chess.com/pub/puzzle"
-            res = Net::HTTP.get(URI.parse(url))
-            data = JSON.parse(res, symbolize_names: true)
-            message = {
-              type: 'image',
-              originalContentUrl: data[:image],
-              previewImageUrl: data[:image]
-            }
+            url = URI.parse('https://api.chess.com/pub/puzzle')
+
+            begin
+              res = Net::HTTP.get_response(url)
+
+              case res
+                when Net::HTTPSuccess
+                  data = JSON.parse(res.body, symbolize_names: true)
+                  message = {
+                    type: 'image',
+                    originalContentUrl: data[:image],
+                    previewImageUrl: data[:image]
+                  }
+                else
+                  message = getErrorTextObject
+                end
+            rescue => e
+              message = getErrorTextObject
+            end
           else 
             message = {
               type: 'text',
