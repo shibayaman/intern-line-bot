@@ -49,10 +49,10 @@ class WebhookController < ApplicationController
                     previewImageUrl: data[:image]
                   }
                 else
-                  message = getErrorTextObject
+                  message = get_error_text_object
                 end
             rescue => e
-              message = getErrorTextObject
+              message = get_error_text_object
             end
           else 
             message = {
