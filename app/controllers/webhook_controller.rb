@@ -13,7 +13,7 @@ class WebhookController < ApplicationController
     }
   end
 
-  def getErrorTextObject
+  def get_error_text_object
     return {
       type: 'text',
       text: '問題が発生しました。しばらくしてから試してください'
