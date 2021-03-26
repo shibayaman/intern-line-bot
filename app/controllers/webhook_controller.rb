@@ -61,14 +61,14 @@ class WebhookController < ApplicationController
               when Net::HTTPSuccess
                 data = JSON.parse(res.body, symbolize_names: true)
 
-                if event.message['text'] == '問題だして'
-                  message = {
-                    type: 'image',
-                    originalContentUrl: data[:image],
-                    previewImageUrl: data[:image]
-                  }
-                else 
-                  if event.message['text'] == get_nth_move(data[:pgn], 0)
+                case event.message['text']
+                  when '問題だして'
+                    message = {
+                      type: 'image',
+                      originalContentUrl: data[:image],
+                      previewImageUrl: data[:image]
+                    }
+                  when get_nth_move(data[:pgn], 0)
                     message = {
                       type: 'text',
                       text: '正解！'
@@ -78,7 +78,6 @@ class WebhookController < ApplicationController
                       type: 'text',
                       text: '間違ってる。。'
                     }
-                  end
                 end
               else
                 message = get_error_text_object
