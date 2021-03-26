@@ -22,9 +22,7 @@ class WebhookController < ApplicationController
     } 
   end
 
-  def get_nth_move moves, n
-    move = moves[n]
-
+  def normalize_move move
     # "1.Ra5" とかの "1." はいらない && 棋譜に "."は登場しない
     if move.include? "."
       move.slice!(0, 2)
@@ -63,7 +61,7 @@ class WebhookController < ApplicationController
             when Net::HTTPSuccess
               data = JSON.parse(res.body, symbolize_names: true)
               moves = get_moves(data[:pgn])
-              answer = get_nth_move(moves, 0)
+              answer = normalize_move(moves[0])
 
               case event.message['text']
               when '問題だして'
@@ -97,5 +95,5 @@ class WebhookController < ApplicationController
     head :ok
   end
 
-  private :client, :get_error_text_object, :get_nth_move, :get_moves
+  private :client, :get_error_text_object, :normalize_move, :get_moves
 end
