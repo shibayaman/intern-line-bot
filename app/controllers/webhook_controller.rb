@@ -76,16 +76,16 @@ class WebhookController < ApplicationController
             when Net::HTTPSuccess
               data = JSON.parse(res.body, symbolize_names: true)
               moves = get_moves(data[:pgn])
-              answer = normalize_move(moves[0])
 
-              case event.message['text']
-              when '問題だして'
+              message = event.message['text']
+
+              if message == '問題だして'
                 message = {
                   type: 'image',
                   originalContentUrl: data[:image],
                   previewImageUrl: data[:image]
                 }
-              when answer 
+              elsif normalize_move(message) == normalize_move(moves[0])
                 message = {
                   type: 'text',
                   text: '正解！'
