@@ -53,32 +53,40 @@ class WebhookController < ApplicationController
       when Line::Bot::Event::Message
         case event.type
         when Line::Bot::Event::MessageType::Text
-          if event.message['text'] == '問題だして'
-            url = URI.parse(CHESS_API_URL)
+          url = URI.parse(CHESS_API_URL)
 
-            begin
-              res = Net::HTTP.get_response(url)
+          begin
+            res = Net::HTTP.get_response(url)
+            case res
+              when Net::HTTPSuccess
+                data = JSON.parse(res.body, symbolize_names: true)
 
-              case res
-                when Net::HTTPSuccess
-                  data = JSON.parse(res.body, symbolize_names: true)
+                if event.message['text'] == '問題だして'
                   message = {
                     type: 'image',
                     originalContentUrl: data[:image],
                     previewImageUrl: data[:image]
                   }
-                else
-                  message = get_error_text_object
+                else 
+                  if event.message['text'] == get_nth_move(data[:pgn], 0)
+                    message = {
+                      type: 'text',
+                      text: '正解！'
+                    }
+                  else
+                    message = {
+                      type: 'text',
+                      text: '間違ってる。。'
+                    }
+                  end
                 end
-            rescue => e
-              message = get_error_text_object
-            end
-          else 
-            message = {
-              type: 'text',
-              text: 'すみません。よくわかりません。'
-            }
+              else
+                message = get_error_text_object
+              end
+          rescue => e
+            message = get_error_text_object
           end
+
           client.reply_message(event['replyToken'], message)
         end
       end
