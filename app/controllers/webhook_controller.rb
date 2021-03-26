@@ -22,13 +22,7 @@ class WebhookController < ApplicationController
     } 
   end
 
-  def get_nth_move pgn, n
-    lines = pgn.lines(chomp: true)
-
-    #空行の次が指し手
-    empty_line_index = lines.find_index('');
-    moves = lines[empty_line_index + 1].split(' ')
-
+  def get_nth_move moves, n
     move = moves[n]
 
     # "1.Ra5" とかの "1." はいらない && 棋譜に "."は登場しない
@@ -37,6 +31,14 @@ class WebhookController < ApplicationController
     end
 
     move
+  end
+
+  def get_moves pgn
+    lines = pgn.lines(chomp: true)
+
+    #空行の次が指し手
+    empty_line_index = lines.find_index('');
+    moves = lines[empty_line_index + 1].split(' ')
   end
 
   def callback
@@ -60,6 +62,8 @@ class WebhookController < ApplicationController
             case res
             when Net::HTTPSuccess
               data = JSON.parse(res.body, symbolize_names: true)
+              moves = get_moves(data[:pgn])
+              answer = get_nth_move(moves, 0)
 
               case event.message['text']
               when '問題だして'
@@ -68,7 +72,7 @@ class WebhookController < ApplicationController
                   originalContentUrl: data[:image],
                   previewImageUrl: data[:image]
                 }
-              when get_nth_move(data[:pgn], 0)
+              when answer 
                 message = {
                   type: 'text',
                   text: '正解！'
@@ -93,5 +97,5 @@ class WebhookController < ApplicationController
     head :ok
   end
 
-  private :client, :get_error_text_object, :get_nth_move
+  private :client, :get_error_text_object, :get_nth_move, :get_moves
 end
