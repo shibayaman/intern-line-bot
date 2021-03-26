@@ -22,6 +22,23 @@ class WebhookController < ApplicationController
     } 
   end
 
+  def get_nth_move pgn, n
+    lines = pgn.lines(chomp: true)
+
+    #空行の次が指し手
+    empty_line_index = lines.find_index('');
+    moves = lines[empty_line_index + 1].split(' ')
+
+    move = moves[n]
+
+    # "1.Ra5" とかの "1." はいらない && 棋譜に "."は登場しない
+    if move.include? "."
+      move = move[2..-1]
+    end
+
+    return move
+  end
+
   def callback
     body = request.body.read
 
@@ -69,5 +86,5 @@ class WebhookController < ApplicationController
     head :ok
   end
 
-  private :client, :get_error_text_object
+  private :client, :get_error_text_object, :get_nth_move
 end
