@@ -33,7 +33,7 @@ class WebhookController < ApplicationController
 
     # "1.Ra5" とかの "1." はいらない && 棋譜に "."は登場しない
     if move.include? "."
-      move = move[2..-1]
+      move.slice!(0, 2)
     end
 
     move
