@@ -16,10 +16,27 @@ class WebhookController < ApplicationController
   end
 
   def get_error_text_object
-    return {
+    {
       type: 'text',
       text: '問題が発生しました。しばらくしてから試してください'
     } 
+  end
+
+  def normalize_move move
+    # "1.Ra5" とかの "1." はいらない && 棋譜に "."は登場しない
+    if move.include? "."
+      move.slice!(0, 2)
+    end
+
+    move
+  end
+
+  def get_moves pgn
+    lines = pgn.lines(chomp: true)
+
+    #空行の次が指し手
+    empty_line_index = lines.find_index('');
+    lines[empty_line_index + 1].split(' ')
   end
 
   def callback
@@ -36,32 +53,41 @@ class WebhookController < ApplicationController
       when Line::Bot::Event::Message
         case event.type
         when Line::Bot::Event::MessageType::Text
-          if event.message['text'] == '問題だして'
-            url = URI.parse(CHESS_API_URL)
+          url = URI.parse(CHESS_API_URL)
 
-            begin
-              res = Net::HTTP.get_response(url)
+          begin
+            res = Net::HTTP.get_response(url)
+            case res
+            when Net::HTTPSuccess
+              data = JSON.parse(res.body, symbolize_names: true)
+              moves = get_moves(data[:pgn])
+              answer = normalize_move(moves[0])
 
-              case res
-                when Net::HTTPSuccess
-                  data = JSON.parse(res.body, symbolize_names: true)
-                  message = {
-                    type: 'image',
-                    originalContentUrl: data[:image],
-                    previewImageUrl: data[:image]
-                  }
-                else
-                  message = get_error_text_object
-                end
-            rescue => e
+              case event.message['text']
+              when '問題だして'
+                message = {
+                  type: 'image',
+                  originalContentUrl: data[:image],
+                  previewImageUrl: data[:image]
+                }
+              when answer 
+                message = {
+                  type: 'text',
+                  text: '正解！'
+                }
+              else
+                message = {
+                  type: 'text',
+                  text: '間違ってる。。'
+                }
+              end
+            else
               message = get_error_text_object
             end
-          else 
-            message = {
-              type: 'text',
-              text: 'すみません。よくわかりません。'
-            }
+          rescue => e
+            message = get_error_text_object
           end
+
           client.reply_message(event['replyToken'], message)
         end
       end
@@ -69,5 +95,5 @@ class WebhookController < ApplicationController
     head :ok
   end
 
-  private :client, :get_error_text_object
+  private :client, :get_error_text_object, :normalize_move, :get_moves
 end
