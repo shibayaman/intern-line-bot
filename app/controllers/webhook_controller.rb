@@ -36,7 +36,7 @@ class WebhookController < ApplicationController
 
     #空行の次が指し手
     empty_line_index = lines.find_index('');
-    moves = lines[empty_line_index + 1].split(' ')
+    lines[empty_line_index + 1].split(' ')
   end
 
   def callback
