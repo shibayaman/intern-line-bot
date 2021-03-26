@@ -16,7 +16,7 @@ class WebhookController < ApplicationController
   end
 
   def get_error_text_object
-    return {
+    {
       type: 'text',
       text: '問題が発生しました。しばらくしてから試してください'
     } 
@@ -36,7 +36,7 @@ class WebhookController < ApplicationController
       move = move[2..-1]
     end
 
-    return move
+    move
   end
 
   def callback
