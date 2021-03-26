@@ -58,30 +58,30 @@ class WebhookController < ApplicationController
           begin
             res = Net::HTTP.get_response(url)
             case res
-              when Net::HTTPSuccess
-                data = JSON.parse(res.body, symbolize_names: true)
+            when Net::HTTPSuccess
+              data = JSON.parse(res.body, symbolize_names: true)
 
-                case event.message['text']
-                  when '問題だして'
-                    message = {
-                      type: 'image',
-                      originalContentUrl: data[:image],
-                      previewImageUrl: data[:image]
-                    }
-                  when get_nth_move(data[:pgn], 0)
-                    message = {
-                      type: 'text',
-                      text: '正解！'
-                    }
-                  else
-                    message = {
-                      type: 'text',
-                      text: '間違ってる。。'
-                    }
-                end
+              case event.message['text']
+              when '問題だして'
+                message = {
+                  type: 'image',
+                  originalContentUrl: data[:image],
+                  previewImageUrl: data[:image]
+                }
+              when get_nth_move(data[:pgn], 0)
+                message = {
+                  type: 'text',
+                  text: '正解！'
+                }
               else
-                message = get_error_text_object
+                message = {
+                  type: 'text',
+                  text: '間違ってる。。'
+                }
               end
+            else
+              message = get_error_text_object
+            end
           rescue => e
             message = get_error_text_object
           end
