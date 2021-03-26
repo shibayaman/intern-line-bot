@@ -5,6 +5,7 @@ require "uri"
 
 class WebhookController < ApplicationController
   CHESS_API_URL = 'https://api.chess.com/pub/puzzle'
+  CHESS_PIECES = ['K', 'Q', 'B', 'N', 'R', 'P']
 
   protect_from_forgery except: [:callback] # CSRF対策無効化
 
@@ -23,9 +24,23 @@ class WebhookController < ApplicationController
   end
 
   def normalize_move move
+    move.strip!
+
     # "1.Ra5" とかの "1." はいらない && 棋譜に "."は登場しない
     if move.include? "."
       move.slice!(0, 2)
+    end
+
+    move = move.delete('x+#')
+
+    #ポーンが省略されてる場合はつける
+    if CHESS_PIECES.none? { |piece| move.include?(piece) }
+      move = move.insert(-3, 'P')
+    end
+
+    #この段階で4文字あったら元の行か列をを表す番号がついてると思われる
+    if move.length == 4
+      move.slice!(0, 1)
     end
 
     move
