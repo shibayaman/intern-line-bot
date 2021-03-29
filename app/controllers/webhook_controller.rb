@@ -30,7 +30,8 @@ class WebhookController < ApplicationController
 
     # "1.Ra5" とかの "1." はいらない && 棋譜に "."は登場しない
     if move.include? "."
-      move.slice!(0, 2)
+      last_dot = move.rindex('.', -1)
+      move.slice!(0, last_dot + 1)
     end
 
     #ポーンが省略されてる場合はつける
