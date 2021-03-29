@@ -81,6 +81,33 @@ class WebhookController < ApplicationController
     }
   end
 
+  def correct_move?(answer_move, user_move)
+    if answer_move[:piece] + answer_move[:location] != user_move[:piece] + user_move[:location]
+      return false
+    end
+
+    # ユーザーが細かい情報まで打ち込んだ時だけチェックする
+    if user_move[:captured]
+      if !answer_move[:captured]
+        return false
+      end
+    end
+
+    if user_move[:check_notation] != nil
+      if user_move[:check_notation] != answer_move[:check_notation]
+        return false
+      end
+    end
+
+    if user_move[:original_location] != nil
+      if user_move[:original_location] != answer_move[:original_location]
+        return false
+      end
+    end
+
+    true
+  end
+
   def get_moves pgn
     lines = pgn.lines(chomp: true)
 
