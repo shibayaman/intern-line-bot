@@ -6,6 +6,8 @@ require "uri"
 class WebhookController < ApplicationController
   CHESS_API_URL = 'https://api.chess.com/pub/puzzle'
   CHESS_PIECES = ['K', 'Q', 'B', 'N', 'R', 'P']
+  CHECK_NOTATIONS = ['+', '#']
+  CAPTURE_NOTATION = 'x'
 
   protect_from_forgery except: [:callback] # CSRF対策無効化
 
@@ -44,6 +46,39 @@ class WebhookController < ApplicationController
     end
 
     move
+  end
+
+  def parse_move move
+    # Pがついてる前提の時、最初の一文字は駒
+    piece = move.slice(0, 1)
+
+    # "+", "#" を省いたときの末尾2文字はマス目(多分)
+    location = move.delete('#+').slice(-2, 2)
+
+    # チェックメイトに関する表記は最後の1文字にしかつかない
+    check_notation = nil
+    CHECK_NOTATIONS.each { |mark| 
+      if(move.slice(-1, 1) == mark) 
+        check_notation = mark
+      end
+    }
+
+    captured = move.include?(CAPTURE_NOTATION)
+    
+    # Pがついてる前提の時、'x', '+', '#'を省いたときに4文字ある場合は2文字目が初期位置を表す記号
+    original_location = nil
+    simplest_form = move.delete('x+#')
+    if simplest_form.length == 4
+      original_location = simplest_form.slice(1)
+    end
+
+    return {
+      piece: piece,
+      location: location,
+      check_notation: check_notation,
+      captured: captured,
+      original_location: original_location,
+    }
   end
 
   def get_moves pgn
