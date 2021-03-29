@@ -51,10 +51,8 @@ class WebhookController < ApplicationController
 
     # チェックメイトに関する表記は最後の1文字にしかつかない
     check_notation = nil
-    CHECK_NOTATIONS.each do |mark| 
-      if(move.slice(-1, 1) == mark) 
-        check_notation = mark
-      end
+    if CHECK_NOTATIONS.include?(move.slice(-1, 1))
+      check_notation = move.slice(-1, 1)
     end
 
     captured = move.include?(CAPTURE_NOTATION)
