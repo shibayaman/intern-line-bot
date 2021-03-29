@@ -51,11 +51,11 @@ class WebhookController < ApplicationController
 
     # チェックメイトに関する表記は最後の1文字にしかつかない
     check_notation = nil
-    CHECK_NOTATIONS.each { |mark| 
+    CHECK_NOTATIONS.each do |mark| 
       if(move.slice(-1, 1) == mark) 
         check_notation = mark
       end
-    }
+    end
 
     captured = move.include?(CAPTURE_NOTATION)
     
@@ -119,7 +119,7 @@ class WebhookController < ApplicationController
     end
 
     events = client.parse_events_from(body)
-    events.each { |event|
+    events.each do |event|
       case event
       when Line::Bot::Event::Message
         case event.type
@@ -167,7 +167,7 @@ class WebhookController < ApplicationController
           client.reply_message(event['replyToken'], message)
         end
       end
-    }
+    end
     head :ok
   end
 
