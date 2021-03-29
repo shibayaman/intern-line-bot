@@ -87,16 +87,12 @@ class WebhookController < ApplicationController
       end
     end
 
-    if user_move[:check_notation].present?
-      if user_move[:check_notation] != answer_move[:check_notation]
-        return false
-      end
+    if user_move[:check_notation].present? && user_move[:check_notation] != answer_move[:check_notation]
+      return false
     end
 
-    if user_move[:original_location].present?
-      if user_move[:original_location] != answer_move[:original_location]
-        return false
-      end
+    if user_move[:original_location].present? && user_move[:original_location] != answer_move[:original_location]
+      return false
     end
 
     true
