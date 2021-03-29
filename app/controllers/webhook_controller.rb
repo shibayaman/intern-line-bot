@@ -132,7 +132,7 @@ class WebhookController < ApplicationController
             when Net::HTTPSuccess
               data = JSON.parse(res.body, symbolize_names: true)
               moves = get_moves(data[:pgn])
-              puts moves[0]
+              moves[0]
               user_message = event.message['text']
 
               if user_message == '問題だして'
