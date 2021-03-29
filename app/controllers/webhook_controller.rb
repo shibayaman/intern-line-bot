@@ -33,16 +33,9 @@ class WebhookController < ApplicationController
       move.slice!(0, 2)
     end
 
-    move = move.delete('x+#')
-
     #ポーンが省略されてる場合はつける
     if CHESS_PIECES.none? { |piece| move.include?(piece) }
       move = move.insert(-3, 'P')
-    end
-
-    #この段階で4文字あったら元の行か列をを表す番号がついてると思われる
-    if move.length == 4
-      move.slice!(0, 1)
     end
 
     move
@@ -138,25 +131,30 @@ class WebhookController < ApplicationController
             when Net::HTTPSuccess
               data = JSON.parse(res.body, symbolize_names: true)
               moves = get_moves(data[:pgn])
+              puts moves[0]
+              user_message = event.message['text']
 
-              message = event.message['text']
-
-              if message == '問題だして'
+              if user_message == '問題だして'
                 message = {
                   type: 'image',
                   originalContentUrl: data[:image],
                   previewImageUrl: data[:image]
                 }
-              elsif normalize_move(message) == normalize_move(moves[0])
-                message = {
-                  type: 'text',
-                  text: '正解！'
-                }
-              else
-                message = {
-                  type: 'text',
-                  text: '間違ってる。。'
-                }
+              else 
+                user_move = parse_move(normalize_move(user_message))
+                answer_move = parse_move(normalize_move(moves[0]))
+
+                if correct_move?(answer_move, user_move)
+                  message = {
+                    type: 'text',
+                    text: '正解！'
+                  }
+                else
+                  message = {
+                    type: 'text',
+                    text: '間違ってる。。'
+                  }
+                end
               end
             else
               message = get_error_text_object
